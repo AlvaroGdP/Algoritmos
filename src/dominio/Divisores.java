@@ -246,8 +246,9 @@ public class Divisores {
 	}
 	
 	public static void calcularDivisores(int numero) {
+		int numInicial = numero;
 		if (!esPrimo(numero)) {
-			for (int i = 2; i <= (numero / 2 + 1); i++) { //Ya hemos comprobado si es primo. El mayor divisor posible es el numero / 2
+			for (int i = 2; i <= (numInicial / 2 + 1); i++) { //Ya hemos comprobado si es primo. El mayor divisor posible es el numero / 2
 				while (numero % i == 0) {
 					if (divisores.containsKey(i)) {
 						divisores.replace(i, divisores.get(i)+1);
