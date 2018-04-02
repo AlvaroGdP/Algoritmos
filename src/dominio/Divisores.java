@@ -12,7 +12,7 @@ public class Divisores {
 	
 	private static LinkedHashMap<Integer, Integer> divisores = new LinkedHashMap<Integer, Integer>();
 	
-	//Key = divisores (linkedhashmap.keys.toString()) concatenado con turno (true, false)
+	//Key = divisores (linkedhashmap.keys.toString())
 	private static Hashtable<String, Nodo> nodosVisitados = new Hashtable<String, Nodo>();
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
@@ -23,17 +23,19 @@ public class Divisores {
 		forwBack = modo;
 		boolean turno = turnoInicial;
 		
+		boolean finPartida = true; //true para continuar jugando, false en caso contrario
+		
 		calcularDivisores(numeroMax);
 		LinkedHashMap<Integer, Integer> initialHash = new LinkedHashMap<Integer, Integer>();
 		initialHash = (LinkedHashMap<Integer, Integer>) divisores.clone();
 		Nodo estadoActual;
 		
 		if (forwBack.equals("Forward")) {
-			estadoActual = new Nodo(initialHash, turno, 1);
+			estadoActual = new Nodo(initialHash, 1);
 			sucesoresForw(estadoActual, 1);
 			visitarForw(estadoActual);
 		}else {
-			estadoActual = new Nodo(initialHash, turno, numeroMax);
+			estadoActual = new Nodo(initialHash, numeroMax);
 			sucesoresBack(estadoActual);
 			visitarBack(estadoActual);
 		}
@@ -45,38 +47,37 @@ public class Divisores {
 					estadoActual = turnoMaquina(estadoActual);
 					turno = false;
 				}else {
-					System.out.println("[MAQUINA] Tú ganas :(");
-					break;
+					System.out.println("\n[MAQUINA] Tú ganas :(\n");
+					finPartida = false;
 				}
 			}else {
 				if (!fin(estadoActual)) {
 					estadoActual = turnoJugador(estadoActual);
 					turno = true;
 				}else {
-					break;
+					System.out.println("\n[MAQUINA] He ganado :)\n");
+					finPartida = false;
 				}
 			}
 			
-		}while (true);		
+		}while (finPartida);		
 	}
 
 	
 	
 	private static Nodo turnoMaquina(Nodo actual) {
 		int jugadaRandom;
-		System.out.println("\n[INFO] "+actual.numeroActualToString(numeroMax, forwBack));
+		System.out.println("[INFO] "+actual.numeroActualToString(numeroMax, forwBack));
 		System.out.println("[INFO] "+actual.divisoresToString());
 		if (actual.getSucesorGanador()!=null) {
-			System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesorGanador()));
-			System.out.println("[INFO] "+actual.getSucesorGanador().numeroActualToString(numeroMax, forwBack));
-			System.out.println("[INFO] "+actual.getSucesorGanador().divisoresToString());
-			System.out.println("[MAQUINA] He ganado :)");
-			return actual.getSucesorGanador();
-		}else {
-			jugadaRandom = (int) (Math.random() * (actual.getSucesores().size()));
-			System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesores().get(jugadaRandom)));
-			return actual.getSucesores().get(jugadaRandom);
+				System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesorGanador()));
+				System.out.println("[INFO] "+actual.getSucesorGanador().numeroActualToString(numeroMax, forwBack));
+				System.out.println("[INFO] "+actual.getSucesorGanador().divisoresToString());
+				return actual.getSucesorGanador();
 		}
+		jugadaRandom = (int) (Math.random() * (actual.getSucesores().size()));
+		System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesores().get(jugadaRandom)));
+		return actual.getSucesores().get(jugadaRandom);
 	}
 	
 	private static Nodo turnoJugador(Nodo actual) {
@@ -106,7 +107,7 @@ public class Divisores {
 			}
 		}
 		System.out.println("[JUGADOR] Dividido por "+(int)Math.pow(base, exponente));
-		return nodosVisitados.get(actual.getDivisoresRestantes().toString()+!actual.getTurno());
+		return nodosVisitados.get(actual.getDivisoresRestantes().toString());
 	}
 	
 	private static String jugadaRealizadaToString(Nodo predecesor, Nodo sucesor) {
@@ -120,23 +121,35 @@ public class Divisores {
 	private static void visitarForw(Nodo predecesor) {
 		for (int i=0; i<predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
-			if (finForw(sucesorActual) && predecesor.getTurno()) { 
+			if (finForw(sucesorActual)) { 
 				predecesor.setSucesorGanador(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
-			}else if(!finForw(sucesorActual)) {
-				visitarForw(sucesorActual);
+			}else{
+				if (!sucesorActual.getVisitado()) {
+					visitarBack(sucesorActual);
+				}
+				if (sucesorActual.getSucesorGanador()==null) {
+					predecesor.setSucesorGanador(sucesorActual);
+				}
 			}
 		}
+		predecesor.setVisitado(true);
 	}
 	
 	private static void visitarBack(Nodo predecesor) {
 		for (int i=0; i<predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
-			if (finBack(sucesorActual) && predecesor.getTurno()) { 
+			if (finBack(sucesorActual)) { 
 				predecesor.setSucesorGanador(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
-			}else if(!finBack(sucesorActual)) {
-				visitarBack(sucesorActual);
+			}else {
+				if (!sucesorActual.getVisitado()) {
+					visitarBack(sucesorActual);
+				}
+				if (sucesorActual.getSucesorGanador()==null) {
+					predecesor.setSucesorGanador(sucesorActual);
+				}
 			}
 		}
+		predecesor.setVisitado(true);
 	}
 
 	private static boolean fin(Nodo nodo) {
@@ -176,16 +189,14 @@ public class Divisores {
 					// Actualizar divisores
 					aux.replace(divisorActual, aux.get(divisorActual) - i);
 					// Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
-					if ((!nodosVisitados.containsKey(aux.toString() + !predecesor.getTurno()) 
-							|| nodosVisitados.get(aux.toString() + !predecesor.getTurno()).getTurno() != predecesor.getTurno())) {
-						
-						Nodo sucesor = new Nodo(aux, !predecesor.getTurno(), (int) ((numeroActual * (Math.pow(divisorActual, i)))));
+					if ((!nodosVisitados.containsKey(aux.toString()))){
+						Nodo sucesor = new Nodo(aux, (int) ((numeroActual * (Math.pow(divisorActual, i)))));
 						predecesor.addSucesor(sucesor);
-						nodosVisitados.put(aux.toString() + !predecesor.getTurno(), sucesor);
+						nodosVisitados.put(aux.toString(), sucesor);
 						sucesoresForw(sucesor, (int) (numeroActual * (Math.pow(divisorActual, i))));
 						// Si ha sido visitado --Y-- en el mismo turno, solo se añade como sucesor
 					} else {
-						predecesor.addSucesor(nodosVisitados.get(aux.toString() + !predecesor.getTurno()));
+						predecesor.addSucesor(nodosVisitados.get(aux.toString()));
 					}
 
 				}
@@ -207,17 +218,16 @@ public class Divisores {
 				aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual)-i);
 				
 				//Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
-				if ((!nodosVisitados.containsKey(aux.toString()+!predecesor.getTurno()) 
-						|| nodosVisitados.get(aux.toString()+!predecesor.getTurno()).getTurno() != predecesor.getTurno())) {
+				if ((!nodosVisitados.containsKey(aux.toString()))) {
 					
-					Nodo sucesor = new Nodo(aux, !predecesor.getTurno(), (int) (predecesor.getNumero() / (Math.pow(divisorActual, i))));
+					Nodo sucesor = new Nodo(aux, (int) (predecesor.getNumero() / (Math.pow(divisorActual, i))));
 					predecesor.addSucesor(sucesor);
-					nodosVisitados.put(aux.toString()+!predecesor.getTurno(), sucesor);
+					nodosVisitados.put(aux.toString(), sucesor);
 					sucesoresBack(sucesor);
 					
 				//Si ha sido visitado --Y-- en el mismo turno, solo se añade como sucesor
 				}else {
-					predecesor.addSucesor(nodosVisitados.get(aux.toString()+!predecesor.getTurno()));
+					predecesor.addSucesor(nodosVisitados.get(aux.toString()));
 				} 
 			}
 		}

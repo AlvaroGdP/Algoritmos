@@ -9,10 +9,14 @@ public class Presentacion {
 	
 	public static void main(String[] args) {
 	
-		int numero = introducirNumeroMax();
-		boolean turnoInicial = introducirTurnoInicial();
-		String modo = introducirModo();
-		Divisores.ejecucionPrincipal(numero, modo, turnoInicial);
+		while (true) {
+			System.out.println("\n***************** Iniciando Nuevo Juego *****************\n");
+			
+			int numero = introducirNumeroMax();
+			boolean turnoInicial = introducirTurnoInicial();
+			String modo = introducirModo();
+			Divisores.ejecucionPrincipal(numero, modo, turnoInicial);
+		}
 		
 	}
 	
@@ -76,6 +80,7 @@ public class Presentacion {
 				break;
 			}
 		}
+		System.out.println("********************************************");
 		return modo;
 	}
 	

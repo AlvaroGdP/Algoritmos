@@ -10,8 +10,24 @@ public class Nodo {
 	private LinkedHashMap<Integer, Integer> divisoresRestantes;
 	private LinkedList<Nodo> sucesores;
 	private Nodo sucesorGanador;
-	private boolean turno; //true para máquina, false para jugador
 	private int numero;
+	private boolean visitado;
+
+	public Nodo(LinkedHashMap<Integer, Integer> divisoresRestantes, int numero) {
+		this.divisoresRestantes=divisoresRestantes;
+		this.sucesores = new LinkedList<Nodo>();
+		this.sucesorGanador=null;
+		this.numero = numero;
+		this.visitado = false;
+	}
+		
+	public boolean getVisitado() {
+		return visitado;
+	}
+
+	public void setVisitado(boolean visitado) {
+		this.visitado = visitado;
+	}
 	
 	public int getNumero() {
 		return numero;
@@ -20,24 +36,7 @@ public class Nodo {
 	public void setNumero(int numero) {
 		this.numero = numero;
 	}
-
-
-	public boolean getTurno() {
-		return turno;
-	}
-
-	public void setTurno(boolean turno) {
-		this.turno = turno;
-	}
-
-	public Nodo(LinkedHashMap<Integer, Integer> divisoresRestantes, boolean turno, int numero) {
-		this.divisoresRestantes=divisoresRestantes;
-		this.sucesores = new LinkedList<Nodo>();
-		this.sucesorGanador=null;
-		this.turno = turno;
-		this.numero = numero;
-	}
-		
+	
 	public void addSucesor(Nodo sucesor) {
 		sucesores.add(sucesor);
 	}
