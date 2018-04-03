@@ -17,6 +17,13 @@ public class Divisores {
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
 	
+	
+	/*************************************************************************************************
+	 * Método encargado de guiar la ejecución principal del programa, invocando otros métodos necesarios
+	 * @param numero: número a utilizar durante el juego
+	 * @param modo: forward o backward
+	 * @param turnoInicial: si empieza a jugar la máquina o el jugador
+	 **********************************************************************************************/
 	public static void ejecucionPrincipal(int numero, String modo, boolean turnoInicial) {
 		
 		numeroMax = numero;
@@ -32,7 +39,7 @@ public class Divisores {
 		
 		if (forwBack.equals("Forward")) {
 			estadoActual = new Nodo(initialHash, 1);
-			sucesoresForw(estadoActual, 1);
+			sucesoresForw(estadoActual);
 			visitarForw(estadoActual);
 		}else {
 			estadoActual = new Nodo(initialHash, numeroMax);
@@ -64,30 +71,40 @@ public class Divisores {
 	}
 
 	
-	
+	/*************************************************************************************************
+	 * Método encargado de simular la toma de decisiones del oponente(máquina)
+	 * @param actual: estado actual del problema
+	 * @return estado del problema tras aplicar alguna acción
+	 ************************************************************************************************/
 	private static Nodo turnoMaquina(Nodo actual) {
 		int jugadaRandom;
 		System.out.println("[INFO] "+actual.numeroActualToString(numeroMax, forwBack));
 		System.out.println("[INFO] "+actual.divisoresToString());
-		if (actual.getSucesorGanador()!=null) {
-				System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesorGanador()));
-				System.out.println("[INFO] "+actual.getSucesorGanador().numeroActualToString(numeroMax, forwBack));
-				System.out.println("[INFO] "+actual.getSucesorGanador().divisoresToString());
-				return actual.getSucesorGanador();
+		if (actual.getSucesorElegido()!=null) {
+				System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesorElegido()));
+				System.out.println("[INFO] "+actual.getSucesorElegido().numeroActualToString(numeroMax, forwBack));
+				System.out.println("[INFO] "+actual.getSucesorElegido().divisoresToString());
+				return actual.getSucesorElegido();
 		}
 		jugadaRandom = (int) (Math.random() * (actual.getSucesores().size()));
 		System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesores().get(jugadaRandom)));
+		System.out.println("[INFO] "+actual.getSucesorElegido().numeroActualToString(numeroMax, forwBack));
+		System.out.println("[INFO] "+actual.getSucesorElegido().divisoresToString());
 		return actual.getSucesores().get(jugadaRandom);
 	}
 	
+	
+	/*************************************************************************************************
+	 * Método utilizado para que el jugador decida la acción a tomar
+	 * @param actual: estado actual del problema
+	 * @return estado del problema tras aplicar alguna acción
+	 *************************************************************************************************/
 	private static Nodo turnoJugador(Nodo actual) {
 		boolean correcto = false;
 		int divisor = -1;
 		int base = -1;
 		int exponente = -1;
 		String stringDivisores = actual.divisoresToString();
-		System.out.println("\n[INFO] "+actual.numeroActualToString(numeroMax, forwBack));
-		System.out.println("[INFO] "+stringDivisores);
 		while (!correcto) {
 			System.out.println("[SISTEMA] Introduce un divisor válido de los anteriores por el que divir al número actual.");
 			try {
@@ -100,7 +117,7 @@ public class Divisores {
 			}
 			if (stringDivisores.contains(""+divisor)) {
 				base = encontrarBase(divisor);
-				exponente = encontrarExponente(base, divisor);
+				exponente = (int) (Math.log(divisor)/Math.log(base));
 				//Tras hallar divisor primo y número de veces, actualizamos los divisores restantes
 				actual.getDivisoresRestantes().put(base, actual.getDivisoresRestantes().get(base) - exponente);
 				correcto = true;
@@ -110,6 +127,13 @@ public class Divisores {
 		return nodosVisitados.get(actual.getDivisoresRestantes().toString());
 	}
 	
+	
+	/*************************************************************************************************
+	 * Método utilizado para crear una String con la información sobre la jugada realizada
+	 * @param predecesor: estado del problema antes de aplicar dicha acción
+	 * @param sucesor: estado del problema tras aplicar la acción
+	 * @return String generada
+	 *************************************************************************************************/
 	private static String jugadaRealizadaToString(Nodo predecesor, Nodo sucesor) {
 		if (forwBack.equals("Forward")) {
 			return "Dividido por "+sucesor.getNumero()/predecesor.getNumero()+".";
@@ -118,40 +142,56 @@ public class Divisores {
 		}
 	}
 
+	
+	/***************************************************************************************************
+	 * Método utilizado para asignar los sucesores correctos a cada nodo. Versión Forward.
+	 * @param predecesor: nodo cuyos sucesores, y él mismo, serán visitados
+	 **************************************************************************************************/
 	private static void visitarForw(Nodo predecesor) {
 		for (int i=0; i<predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
 			if (finForw(sucesorActual)) { 
-				predecesor.setSucesorGanador(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
+				predecesor.setSucesorElegido(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
 			}else{
 				if (!sucesorActual.getVisitado()) {
 					visitarBack(sucesorActual);
 				}
-				if (sucesorActual.getSucesorGanador()==null) {
-					predecesor.setSucesorGanador(sucesorActual);
+				if (sucesorActual.getSucesorElegido()==null) {
+					predecesor.setSucesorElegido(sucesorActual);
 				}
 			}
 		}
 		predecesor.setVisitado(true);
 	}
 	
+	
+	/***************************************************************************************************
+	 * Método utilizado para asignar los sucesores correctos a cada nodo. Versión Backward.
+	 * @param predecesor: nodo cuyos sucesores, y él mismo, serán visitados
+	 **************************************************************************************************/
 	private static void visitarBack(Nodo predecesor) {
 		for (int i=0; i<predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
 			if (finBack(sucesorActual)) { 
-				predecesor.setSucesorGanador(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
+				predecesor.setSucesorElegido(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
 			}else {
 				if (!sucesorActual.getVisitado()) {
 					visitarBack(sucesorActual);
 				}
-				if (sucesorActual.getSucesorGanador()==null) {
-					predecesor.setSucesorGanador(sucesorActual);
+				if (sucesorActual.getSucesorElegido()==null) {
+					predecesor.setSucesorElegido(sucesorActual);
 				}
 			}
 		}
 		predecesor.setVisitado(true);
 	}
 
+	
+	/**************************************************************************************************
+	 * Método utilizado para decidir si se ha alcanzado el último nodo, para ambas versiones.
+	 * @param nodo: nodo a comprobar si es el final
+	 * @return true si se ha alcanzado el final, false en caso contrario
+	 *************************************************************************************************/
 	private static boolean fin(Nodo nodo) {
 		if (forwBack.equals("Forward")) {
 			return finForw(nodo);
@@ -160,6 +200,12 @@ public class Divisores {
 		}
 	}
 	
+	
+	/**************************************************************************************************
+	 * Método utilizado para decidir si se ha alcanzado el final. Versión Forward.
+	 * @param nodo: nodo a comprobar si es el final
+	 * @return true si se ha alcanzado el final, false en caso contrario
+	 *************************************************************************************************/
 	private static boolean finForw(Nodo nodo) {
 		if (nodo.getNumero() == numeroMax) {
 			return true;
@@ -167,6 +213,11 @@ public class Divisores {
 		return false;
 	}
 	
+	/**************************************************************************************************
+	 * Método utilizado para decidir si se ha alcanzado el final. Versión Backward.
+	 * @param nodo: nodo a comprobar si es el final
+	 * @return true si se ha alcanzado el final, false en caso contrario
+	 *************************************************************************************************/
 	private static boolean finBack(Nodo nodo) {
 		if(nodo.getNumero() == 1) {
 			return true;
@@ -175,7 +226,12 @@ public class Divisores {
 		
 	}
 
-	public static void sucesoresForw(Nodo predecesor, int numeroActual) {
+	
+	/**************************************************************************************************
+	 * Método utilizado para generar los sucesores de un nodo dado, de forma recursiva. Versión Forward.
+	 * @param predecesor: nodo cuyos sucesores serán generados
+	 **************************************************************************************************/
+	public static void sucesoresForw(Nodo predecesor) {
 		// Obtener todos los divisores
 		Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
 		Iterator<Integer> keys = keySet.iterator();
@@ -185,15 +241,15 @@ public class Divisores {
 			for (int i = 1; i <= predecesor.getDivisoresRestantes().get(divisorActual); i++) {
 				// Copiar divisores actuales
 				LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
-				if (numeroMax % (numeroActual * (Math.pow(divisorActual, i))) == 0) {
+				if (numeroMax % (predecesor.getNumero() * (Math.pow(divisorActual, i))) == 0) {
 					// Actualizar divisores
 					aux.replace(divisorActual, aux.get(divisorActual) - i);
 					// Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
 					if ((!nodosVisitados.containsKey(aux.toString()))){
-						Nodo sucesor = new Nodo(aux, (int) ((numeroActual * (Math.pow(divisorActual, i)))));
+						Nodo sucesor = new Nodo(aux, (int) ((predecesor.getNumero() * (Math.pow(divisorActual, i)))));
 						predecesor.addSucesor(sucesor);
 						nodosVisitados.put(aux.toString(), sucesor);
-						sucesoresForw(sucesor, (int) (numeroActual * (Math.pow(divisorActual, i))));
+						sucesoresForw(sucesor);
 						// Si ha sido visitado --Y-- en el mismo turno, solo se añade como sucesor
 					} else {
 						predecesor.addSucesor(nodosVisitados.get(aux.toString()));
@@ -204,6 +260,11 @@ public class Divisores {
 		}
 	}
 	
+	
+	/**************************************************************************************************
+	 * Método utilizado para generar los sucesores de un nodo dado, de forma recursiva. Versión Backward.
+	 * @param predecesor: nodo cuyos sucesores serán generados
+	 **************************************************************************************************/
 	public static void sucesoresBack(Nodo predecesor) {
 		//Obtener todos los divisores
 		Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
@@ -233,15 +294,12 @@ public class Divisores {
 		}
 	}
 	
-	private static int encontrarExponente(int base, int numero) {
-		int exponente = 0;
-		while (numero != 1) {
-			numero = numero/base;
-			exponente++;
-		}
-		return exponente;
-	}
-
+	
+	/**************************************************************************************
+	 * Método utilizado para hallar la base (prima y única) de un número dado 
+	 * @param numero
+	 * @return la base, si existe. -1 en caso de error
+	 ***************************************************************************************/
 	private static int encontrarBase(int numero) {
 		if (!esPrimo(numero)) {
 			for (int i = 2; i <= (numero / 2 + 2); i++) {
@@ -255,6 +313,11 @@ public class Divisores {
 		return -1; //Error	
 	}
 	
+	
+	/************************************************************************************************
+	 * Método utilizado para calcular los divisores de un número
+	 * @param numero
+	 ************************************************************************************************/
 	public static void calcularDivisores(int numero) {
 		int numInicial = numero;
 		if (!esPrimo(numero)) {
@@ -274,6 +337,11 @@ public class Divisores {
 		}
 	}
 
+	/***************************************************************************************
+	 * Método utilizado para detectar si un número dado es primo
+	 * @param n: dicho úmero
+	 * @return: true en caso afirmativo, false en caso contrario
+	 ***************************************************************************************/
 	public static boolean esPrimo(long n) {
 		boolean primo = (n == 2 || n % 2 != 0);
 		int raiz = (int) Math.sqrt(n);

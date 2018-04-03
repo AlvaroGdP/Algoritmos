@@ -9,14 +9,14 @@ public class Nodo {
 
 	private LinkedHashMap<Integer, Integer> divisoresRestantes;
 	private LinkedList<Nodo> sucesores;
-	private Nodo sucesorGanador;
+	private Nodo sucesorElegido;
 	private int numero;
 	private boolean visitado;
 
 	public Nodo(LinkedHashMap<Integer, Integer> divisoresRestantes, int numero) {
 		this.divisoresRestantes=divisoresRestantes;
 		this.sucesores = new LinkedList<Nodo>();
-		this.sucesorGanador=null;
+		this.sucesorElegido=null;
 		this.numero = numero;
 		this.visitado = false;
 	}
@@ -57,12 +57,12 @@ public class Nodo {
 		this.divisoresRestantes = divisoresRestantes;
 	}
 
-	public Nodo getSucesorGanador() {
-		return sucesorGanador;
+	public Nodo getSucesorElegido() {
+		return sucesorElegido;
 	}
 	
-	public void setSucesorGanador(Nodo predecesor) {
-		this.sucesorGanador = predecesor;
+	public void setSucesorElegido(Nodo sucesor) {
+		this.sucesorElegido = sucesor;
 	}
 	
 	public String divisoresToString() {
