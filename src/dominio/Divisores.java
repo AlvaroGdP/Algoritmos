@@ -10,10 +10,10 @@ public class Divisores {
 
 	private static Scanner read = new Scanner (System.in);
 	
-	private static LinkedHashMap<Integer, Integer> divisores = new LinkedHashMap<Integer, Integer>();
+	private static LinkedHashMap<Integer, Integer> divisores = null;
 	
 	//Key = divisores (linkedhashmap.keys.toString())
-	private static Hashtable<String, Nodo> nodosVisitados = new Hashtable<String, Nodo>();
+	private static Hashtable<String, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
 	
@@ -25,6 +25,9 @@ public class Divisores {
 	 * @param turnoInicial: si empieza a jugar la máquina o el jugador
 	 **********************************************************************************************/
 	public static void ejecucionPrincipal(int numero, String modo, boolean turnoInicial) {
+		
+		divisores = new LinkedHashMap<Integer, Integer>();
+		nodosVisitados = new Hashtable<String, Nodo>();
 		
 		numeroMax = numero;
 		forwBack = modo;
@@ -82,14 +85,12 @@ public class Divisores {
 		System.out.println("[INFO] "+actual.divisoresToString());
 		if (actual.getSucesorElegido()!=null) {
 				System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesorElegido()));
-				System.out.println("[INFO] "+actual.getSucesorElegido().numeroActualToString(numeroMax, forwBack));
-				System.out.println("[INFO] "+actual.getSucesorElegido().divisoresToString());
+				//System.out.println("[INFO] "+actual.getSucesorElegido().numeroActualToString(numeroMax, forwBack));
+				//System.out.println("[INFO] "+actual.getSucesorElegido().divisoresToString());
 				return actual.getSucesorElegido();
 		}
 		jugadaRandom = (int) (Math.random() * (actual.getSucesores().size()));
 		System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesores().get(jugadaRandom)));
-		System.out.println("[INFO] "+actual.getSucesorElegido().numeroActualToString(numeroMax, forwBack));
-		System.out.println("[INFO] "+actual.getSucesorElegido().divisoresToString());
 		return actual.getSucesores().get(jugadaRandom);
 	}
 	
@@ -104,6 +105,8 @@ public class Divisores {
 		int divisor = -1;
 		int base = -1;
 		int exponente = -1;
+		System.out.println("[INFO] "+actual.numeroActualToString(numeroMax, forwBack));
+		System.out.println("[INFO] "+actual.divisoresToString());
 		String stringDivisores = actual.divisoresToString();
 		while (!correcto) {
 			System.out.println("[SISTEMA] Introduce un divisor válido de los anteriores por el que divir al número actual.");
