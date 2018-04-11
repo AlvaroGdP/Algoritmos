@@ -11,8 +11,6 @@ public class Divisores {
 	private static Scanner read = new Scanner (System.in);
 	
 	private static LinkedHashMap<Integer, Integer> divisores = null;
-	
-	//Key = divisores (linkedhashmap.keys.toString())
 	private static Hashtable<Integer, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
@@ -85,8 +83,6 @@ public class Divisores {
 		System.out.println("[INFO] "+actual.divisoresToString());
 		if (actual.getSucesorElegido()!=null) {
 				System.out.println("\n[MAQUINA] "+jugadaRealizadaToString(actual, actual.getSucesorElegido()));
-				//System.out.println("[INFO] "+actual.getSucesorElegido().numeroActualToString(numeroMax, forwBack));
-				//System.out.println("[INFO] "+actual.getSucesorElegido().divisoresToString());
 				return actual.getSucesorElegido();
 		}
 		jugadaRandom = (int) (Math.random() * (actual.getSucesores().size()));
@@ -254,7 +250,6 @@ public class Divisores {
 					// Actualizar divisores
 					aux.replace(divisorActual, aux.get(divisorActual) - i);
 					Nodo sucesor = new Nodo(aux, (int) ((predecesor.getNumero() * (Math.pow(divisorActual, i)))));
-					// Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
 					if ((!nodosVisitados.containsKey(sucesor.getNumero()))){
 						predecesor.addSucesor(sucesor);
 						nodosVisitados.put(sucesor.getNumero(), sucesor);
@@ -287,7 +282,6 @@ public class Divisores {
 				//Actualizar divisores
 				aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual)-i);
 				Nodo sucesor = new Nodo(aux, (int) (predecesor.getNumero() / (Math.pow(divisorActual, i))));
-				//Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
 				if ((!nodosVisitados.containsKey(sucesor.getNumero()))) {
 					predecesor.addSucesor(sucesor);
 					nodosVisitados.put(sucesor.getNumero(), sucesor);
