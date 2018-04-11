@@ -129,9 +129,9 @@ public class Divisores {
 		System.out.println("[JUGADOR] Dividido por "+(int)Math.pow(base, exponente));
 		
 		if (forwBack.equals("Forward")) {
-			return nodosVisitados.get((int) (numeroMax/actual.getNumero())/ (int) Math.pow(base,  exponente));
+			return nodosVisitados.get((int) actual.getNumero() * (int) Math.pow(base,  exponente));
 		}else {
-			return nodosVisitados.get((int) actual.getNumero()/ (int) Math.pow(base,  exponente));
+			return nodosVisitados.get((int) actual.getNumero() / (int) Math.pow(base,  exponente));
 		}
 		
 	}
@@ -255,13 +255,13 @@ public class Divisores {
 					aux.replace(divisorActual, aux.get(divisorActual) - i);
 					Nodo sucesor = new Nodo(aux, (int) ((predecesor.getNumero() * (Math.pow(divisorActual, i)))));
 					// Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
-					if ((!nodosVisitados.containsKey(numeroMax/sucesor.getNumero()))){
+					if ((!nodosVisitados.containsKey(sucesor.getNumero()))){
 						predecesor.addSucesor(sucesor);
-						nodosVisitados.put(numeroMax/sucesor.getNumero(), sucesor);
+						nodosVisitados.put(sucesor.getNumero(), sucesor);
 						sucesoresForw(sucesor);
 						// Si ha sido visitado solo se añade como sucesor
 					} else {
-						predecesor.addSucesor(nodosVisitados.get(numeroMax/sucesor.getNumero()));
+						predecesor.addSucesor(nodosVisitados.get(sucesor.getNumero()));
 					}
 
 				}
