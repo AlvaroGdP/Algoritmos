@@ -13,7 +13,7 @@ public class Divisores {
 	private static LinkedHashMap<Integer, Integer> divisores = null;
 	
 	//Key = divisores (linkedhashmap.keys.toString())
-	private static Hashtable<String, Nodo> nodosVisitados = null;
+	private static Hashtable<Integer, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
 	
@@ -27,7 +27,7 @@ public class Divisores {
 	public static void ejecucionPrincipal(int numero, String modo, boolean turnoInicial) {
 		
 		divisores = new LinkedHashMap<Integer, Integer>();
-		nodosVisitados = new Hashtable<String, Nodo>();
+		nodosVisitados = new Hashtable<Integer, Nodo>();
 		
 		numeroMax = numero;
 		forwBack = modo;
@@ -127,7 +127,13 @@ public class Divisores {
 			}
 		}
 		System.out.println("[JUGADOR] Dividido por "+(int)Math.pow(base, exponente));
-		return nodosVisitados.get(actual.getDivisoresRestantes().toString());
+		
+		if (forwBack.equals("Forward")) {
+			return nodosVisitados.get((int) (numeroMax/actual.getNumero())/ (int) Math.pow(base,  exponente));
+		}else {
+			return nodosVisitados.get((int) actual.getNumero()/ (int) Math.pow(base,  exponente));
+		}
+		
 	}
 	
 	
@@ -247,15 +253,15 @@ public class Divisores {
 				if (numeroMax % (predecesor.getNumero() * (Math.pow(divisorActual, i))) == 0) {
 					// Actualizar divisores
 					aux.replace(divisorActual, aux.get(divisorActual) - i);
+					Nodo sucesor = new Nodo(aux, (int) ((predecesor.getNumero() * (Math.pow(divisorActual, i)))));
 					// Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
-					if ((!nodosVisitados.containsKey(aux.toString()))){
-						Nodo sucesor = new Nodo(aux, (int) ((predecesor.getNumero() * (Math.pow(divisorActual, i)))));
+					if ((!nodosVisitados.containsKey(numeroMax/sucesor.getNumero()))){
 						predecesor.addSucesor(sucesor);
-						nodosVisitados.put(aux.toString(), sucesor);
+						nodosVisitados.put(numeroMax/sucesor.getNumero(), sucesor);
 						sucesoresForw(sucesor);
-						// Si ha sido visitado --Y-- en el mismo turno, solo se añade como sucesor
+						// Si ha sido visitado solo se añade como sucesor
 					} else {
-						predecesor.addSucesor(nodosVisitados.get(aux.toString()));
+						predecesor.addSucesor(nodosVisitados.get(numeroMax/sucesor.getNumero()));
 					}
 
 				}
@@ -280,18 +286,15 @@ public class Divisores {
 				LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
 				//Actualizar divisores
 				aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual)-i);
-				
+				Nodo sucesor = new Nodo(aux, (int) (predecesor.getNumero() / (Math.pow(divisorActual, i))));
 				//Si no ha sido visitado o ha sido visitado en otro turno ("por el otro jugador")
-				if ((!nodosVisitados.containsKey(aux.toString()))) {
-					
-					Nodo sucesor = new Nodo(aux, (int) (predecesor.getNumero() / (Math.pow(divisorActual, i))));
+				if ((!nodosVisitados.containsKey(sucesor.getNumero()))) {
 					predecesor.addSucesor(sucesor);
-					nodosVisitados.put(aux.toString(), sucesor);
+					nodosVisitados.put(sucesor.getNumero(), sucesor);
 					sucesoresBack(sucesor);
-					
-				//Si ha sido visitado --Y-- en el mismo turno, solo se añade como sucesor
+				//Si ha sido visitado solo se añade como sucesor
 				}else {
-					predecesor.addSucesor(nodosVisitados.get(aux.toString()));
+					predecesor.addSucesor(nodosVisitados.get(sucesor.getNumero()));
 				} 
 			}
 		}
