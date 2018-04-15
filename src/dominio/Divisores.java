@@ -3,6 +3,7 @@ package dominio;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ public class Divisores {
 	private static Hashtable<Integer, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
+	private static LinkedList<Nodo> sucesoresEnCola = null; //Estructura auxiliar utilizada para implementar DFS
 	
 	
 	/*************************************************************************************************
@@ -26,11 +28,11 @@ public class Divisores {
 		
 		divisores = new LinkedHashMap<Integer, Integer>();
 		nodosVisitados = new Hashtable<Integer, Nodo>();
+		sucesoresEnCola = new LinkedList<Nodo>();
 		
 		numeroMax = numero;
 		forwBack = modo;
 		boolean turno = turnoInicial;
-		
 		boolean finPartida = true; //true para continuar jugando, false en caso contrario
 		
 		calcularDivisores(numeroMax);
@@ -40,10 +42,12 @@ public class Divisores {
 		
 		if (forwBack.equals("Forward")) {
 			estadoActual = new Nodo(initialHash, 1);
-			sucesoresForw(estadoActual);
+			sucesoresEnCola.add(estadoActual);
+			sucesoresForw();
 			visitarForw(estadoActual);
 		}else {
 			estadoActual = new Nodo(initialHash, numeroMax);
+			sucesoresEnCola.add(estadoActual);
 			sucesoresBack(estadoActual);
 			visitarBack(estadoActual);
 		}
@@ -156,10 +160,10 @@ public class Divisores {
 		for (int i=0; i<predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
 			if (finForw(sucesorActual)) { 
-				predecesor.setSucesorElegido(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
+				predecesor.setSucesorElegido(sucesorActual);
 			}else{
 				if (!sucesorActual.getVisitado()) {
-					visitarBack(sucesorActual);
+					visitarForw(sucesorActual);
 				}
 				if (sucesorActual.getSucesorElegido()==null) {
 					predecesor.setSucesorElegido(sucesorActual);
@@ -180,7 +184,7 @@ public class Divisores {
 		for (int i=0; i<predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
 			if (finBack(sucesorActual)) { 
-				predecesor.setSucesorElegido(sucesorActual); //Predecesor en arbol de decisión, no de generación de nodos
+				predecesor.setSucesorElegido(sucesorActual);
 			}else {
 				if (!sucesorActual.getVisitado()) {
 					visitarBack(sucesorActual);
@@ -222,6 +226,7 @@ public class Divisores {
 		return false;
 	}
 	
+	
 	/**************************************************************************************************
 	 * Método utilizado para decidir si se ha alcanzado el final. Versión Backward.
 	 * @param nodo: nodo a comprobar si es el final
@@ -239,31 +244,33 @@ public class Divisores {
 	/**************************************************************************************************
 	 * Método utilizado para generar los sucesores de un nodo dado, de forma recursiva. Versión Forward.
 	 * @param predecesor: nodo cuyos sucesores serán generados
-	 **************************************************************************************************/
-	public static void sucesoresForw(Nodo predecesor) {
-		// Obtener todos los divisores
-		Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
-		Iterator<Integer> keys = keySet.iterator();
-		// Iterar sobre ellos
-		while (keys.hasNext()) {
-			int divisorActual = keys.next();
-			for (int i = 1; i <= predecesor.getDivisoresRestantes().get(divisorActual); i++) {
-				// Copiar divisores actuales
-				LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
-				if (numeroMax % (predecesor.getNumero() * (Math.pow(divisorActual, i))) == 0) {
-					// Actualizar divisores
-					aux.replace(divisorActual, aux.get(divisorActual) - i);
-					int numeroActual = (int) (predecesor.getNumero() * (Math.pow(divisorActual, i)));
-					if ((!nodosVisitados.containsKey(numeroActual))){
-						Nodo sucesor = new Nodo(aux, numeroActual);
-						predecesor.addSucesor(sucesor);
-						nodosVisitados.put(sucesor.getNumero(), sucesor);
-						sucesoresForw(sucesor);
-						// Si ha sido visitado solo se añade como sucesor
-					} else {
-						predecesor.addSucesor(nodosVisitados.get(numeroActual));
+	 **************************************************************************************************/	
+	public static void sucesoresForw() {
+		while (!sucesoresEnCola.isEmpty()) {
+			Nodo predecesor = sucesoresEnCola.remove();
+			// Obtener todos los divisores
+			Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
+			Iterator<Integer> keys = keySet.iterator();
+			// Iterar sobre ellos
+			while (keys.hasNext()) {
+				int divisorActual = keys.next();
+				for (int i = 1; i <= predecesor.getDivisoresRestantes().get(divisorActual); i++) {
+					// Copiar divisores actuales
+					LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
+					if (numeroMax % (predecesor.getNumero() * (Math.pow(divisorActual, i))) == 0) {
+						// Actualizar divisores
+						aux.replace(divisorActual, aux.get(divisorActual) - i);
+						int numeroActual = (int) (predecesor.getNumero() * (Math.pow(divisorActual, i)));
+						if ((!nodosVisitados.containsKey(numeroActual))) {
+							Nodo sucesor = new Nodo(aux, numeroActual);
+							predecesor.addSucesor(sucesor);
+							nodosVisitados.put(sucesor.getNumero(), sucesor);
+							sucesoresEnCola.addLast(sucesor);
+							// Si ha sido visitado solo se añade como sucesor
+						} else {
+							predecesor.addSucesor(nodosVisitados.get(numeroActual));
+						}
 					}
-
 				}
 			}
 		}
@@ -275,29 +282,29 @@ public class Divisores {
 	 * @param predecesor: nodo cuyos sucesores serán generados
 	 **************************************************************************************************/
 	public static void sucesoresBack(Nodo predecesor) {
-		//Obtener todos los divisores
-		Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
-		Iterator<Integer> keys = keySet.iterator();
-		//Iterar sobre ellos
-		while (keys.hasNext()) {
-			int divisorActual = keys.next();
-			for (int i=1; i<=predecesor.getDivisoresRestantes().get(divisorActual); i++) {
-				//Copiar divisores actuales
-				LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
-				//Actualizar divisores
-				aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual)-i);
-				int numeroActual = (int) (predecesor.getNumero() / (Math.pow(divisorActual, i)));
-				if ((!nodosVisitados.containsKey(numeroActual))) {
-					Nodo sucesor = new Nodo(aux, numeroActual);
-					predecesor.addSucesor(sucesor);
-					nodosVisitados.put(sucesor.getNumero(), sucesor);
-					sucesoresBack(sucesor);
-				//Si ha sido visitado solo se añade como sucesor
-				}else {
-					predecesor.addSucesor(nodosVisitados.get(numeroActual));
-				} 
+			// Obtener todos los divisores
+			Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
+			Iterator<Integer> keys = keySet.iterator();
+			// Iterar sobre ellos
+			while (keys.hasNext()) {
+				int divisorActual = keys.next();
+				for (int i = 1; i <= predecesor.getDivisoresRestantes().get(divisorActual); i++) {
+					// Copiar divisores actuales
+					LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
+					// Actualizar divisores
+					aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual) - i);
+					int numeroActual = (int) (predecesor.getNumero() / (Math.pow(divisorActual, i)));
+					if ((!nodosVisitados.containsKey(numeroActual))) {
+						Nodo sucesor = new Nodo(aux, numeroActual);
+						predecesor.addSucesor(sucesor);
+						nodosVisitados.put(sucesor.getNumero(), sucesor);
+						sucesoresBack(sucesor);
+						// Si ha sido visitado solo se añade como sucesor
+					} else {
+						predecesor.addSucesor(nodosVisitados.get(numeroActual));
+					}
+				}
 			}
-		}
 	}
 	
 	
@@ -343,6 +350,7 @@ public class Divisores {
 		}
 	}
 
+	
 	/***************************************************************************************
 	 * Método utilizado para detectar si un número dado es primo
 	 * @param n: dicho úmero
