@@ -163,6 +163,8 @@ public class Divisores {
 				}
 				if (sucesorActual.getSucesorElegido()==null) {
 					predecesor.setSucesorElegido(sucesorActual);
+					predecesor.setVisitado(true);
+					return;
 				}
 			}
 		}
@@ -185,6 +187,8 @@ public class Divisores {
 				}
 				if (sucesorActual.getSucesorElegido()==null) {
 					predecesor.setSucesorElegido(sucesorActual);
+					predecesor.setVisitado(true);
+					return;
 				}
 			}
 		}
@@ -249,14 +253,15 @@ public class Divisores {
 				if (numeroMax % (predecesor.getNumero() * (Math.pow(divisorActual, i))) == 0) {
 					// Actualizar divisores
 					aux.replace(divisorActual, aux.get(divisorActual) - i);
-					Nodo sucesor = new Nodo(aux, (int) ((predecesor.getNumero() * (Math.pow(divisorActual, i)))));
-					if ((!nodosVisitados.containsKey(sucesor.getNumero()))){
+					int numeroActual = (int) (predecesor.getNumero() * (Math.pow(divisorActual, i)));
+					if ((!nodosVisitados.containsKey(numeroActual))){
+						Nodo sucesor = new Nodo(aux, numeroActual);
 						predecesor.addSucesor(sucesor);
 						nodosVisitados.put(sucesor.getNumero(), sucesor);
 						sucesoresForw(sucesor);
 						// Si ha sido visitado solo se añade como sucesor
 					} else {
-						predecesor.addSucesor(nodosVisitados.get(sucesor.getNumero()));
+						predecesor.addSucesor(nodosVisitados.get(numeroActual));
 					}
 
 				}
@@ -281,14 +286,15 @@ public class Divisores {
 				LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
 				//Actualizar divisores
 				aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual)-i);
-				Nodo sucesor = new Nodo(aux, (int) (predecesor.getNumero() / (Math.pow(divisorActual, i))));
-				if ((!nodosVisitados.containsKey(sucesor.getNumero()))) {
+				int numeroActual = (int) (predecesor.getNumero() / (Math.pow(divisorActual, i)));
+				if ((!nodosVisitados.containsKey(numeroActual))) {
+					Nodo sucesor = new Nodo(aux, numeroActual);
 					predecesor.addSucesor(sucesor);
 					nodosVisitados.put(sucesor.getNumero(), sucesor);
 					sucesoresBack(sucesor);
 				//Si ha sido visitado solo se añade como sucesor
 				}else {
-					predecesor.addSucesor(nodosVisitados.get(sucesor.getNumero()));
+					predecesor.addSucesor(nodosVisitados.get(numeroActual));
 				} 
 			}
 		}
