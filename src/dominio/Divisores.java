@@ -10,8 +10,7 @@ import java.util.Set;
 public class Divisores {
 
 	private static Scanner read = new Scanner (System.in);
-	
-	private static LinkedHashMap<Integer, Integer> divisores = null;
+	private static LinkedList<Integer> divisores = null;
 	private static Hashtable<Integer, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;	
 	private static String forwBack = ""; //Controlar si usamos Forward o backward
@@ -26,7 +25,7 @@ public class Divisores {
 	 **********************************************************************************************/
 	public static void ejecucionPrincipal(int numero, String modo, boolean turnoInicial) {
 		
-		divisores = new LinkedHashMap<Integer, Integer>();
+		divisores = new LinkedList<Integer>();
 		nodosVisitados = new Hashtable<Integer, Nodo>();
 		sucesoresEnCola = new LinkedList<Nodo>();
 		
@@ -34,11 +33,10 @@ public class Divisores {
 		forwBack = modo;
 		boolean turno = turnoInicial;
 		boolean finPartida = true; //true para continuar jugando, false en caso contrario
-		
 		calcularDivisores(numeroMax);
-		LinkedHashMap<Integer, Integer> initialHash = new LinkedHashMap<Integer, Integer>();
-		initialHash = (LinkedHashMap<Integer, Integer>) divisores.clone();
-		Nodo estadoActual = new Nodo(initialHash, numeroMax);
+		LinkedList<Integer> initialList = new LinkedList<Integer>();
+		initialList = (LinkedList<Integer>) divisores.clone();
+		Nodo estadoActual = new Nodo(initialList, numeroMax);
 
 		if (forwBack.equals("Forward")) {
 			sucesoresEnCola.add(estadoActual);
@@ -202,7 +200,7 @@ public class Divisores {
 							predecesor.addSucesor(sucesor);
 							nodosVisitados.put(sucesor.getNumero(), sucesor);
 							sucesoresEnCola.addLast(sucesor);
-							// Si ha sido visitado solo se añade como sucesor
+							// Si ha sido creado solo se añade como sucesor
 						} else {
 							predecesor.addSucesor(nodosVisitados.get(numeroActual));
 						}
@@ -218,31 +216,38 @@ public class Divisores {
 	 * @param predecesor: nodo cuyos sucesores serán generados
 	 **************************************************************************************************/
 	public static void sucesoresBack(Nodo predecesor) {
-			// Obtener todos los divisores
-			Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
-			Iterator<Integer> keys = keySet.iterator();
-			// Iterar sobre ellos
-			while (keys.hasNext()) {
-				int divisorActual = keys.next();
-				for (int i = 1; i <= predecesor.getDivisoresRestantes().get(divisorActual); i++) {
-					// Copiar divisores actuales
-					LinkedHashMap<Integer, Integer> aux = (LinkedHashMap<Integer, Integer>) predecesor.getDivisoresRestantes().clone();
-					// Actualizar divisores
-					aux.replace(divisorActual, predecesor.getDivisoresRestantes().get(divisorActual) - i);
-					int numeroActual = (int) (predecesor.getNumero() / (Math.pow(divisorActual, i)));
-					if ((!nodosVisitados.containsKey(numeroActual))) {
-						Nodo sucesor = new Nodo(aux, numeroActual);
-						predecesor.addSucesor(sucesor);
-						nodosVisitados.put(sucesor.getNumero(), sucesor);
-						sucesoresBack(sucesor);
-						// Si ha sido visitado solo se añade como sucesor
-					} else {
-						predecesor.addSucesor(nodosVisitados.get(numeroActual));
-					}
+		int divisorActual = -1;
+		int firstOccurence = -1;
+		int lastOccurence = -1;
+		for (int i=0; i < predecesor.getDivisoresRestantes().size(); i++) {
+			divisorActual = predecesor.getDivisoresRestantes().get(i);
+			firstOccurence = predecesor.getDivisoresRestantes().indexOf(divisorActual);
+			lastOccurence = predecesor.getDivisoresRestantes().lastIndexOf(divisorActual);
+			i = lastOccurence; //Dado que están ordenados, podemos avanzar hasta la siguiente posicion
+			
+			//Generaremos tantos sucesores como exponente del divisor Actua
+			for (int j=1; j <= (lastOccurence - firstOccurence + 1); j++) { 
+				LinkedList<Integer> copiaDivisoresRestantes = (LinkedList<Integer>) predecesor.getDivisoresRestantes().clone();
+				
+				//Eliminamos tantos divisores como exponente
+				for (int k=0; k<j; k++) { 
+					copiaDivisoresRestantes.remove(firstOccurence);
+				}
+				
+				int numeroActual = (int) (predecesor.getNumero() / (Math.pow(divisorActual, j)));
+				//Si aun no ha sido creado
+				if ((!nodosVisitados.containsKey(numeroActual))) {
+					Nodo sucesor = new Nodo(copiaDivisoresRestantes, numeroActual);
+					predecesor.addSucesor(sucesor);
+					nodosVisitados.put(sucesor.getNumero(), sucesor);
+					sucesoresBack(sucesor);
+				// Si ha sido creado solo se añade como sucesor
+				} else {
+					predecesor.addSucesor(nodosVisitados.get(numeroActual));
 				}
 			}
+		}
 	}
-	
 	
 	/************************************************************************************************
 	 * Método utilizado para calcular los divisores de un número
@@ -253,17 +258,12 @@ public class Divisores {
 		if (!esPrimo(numero)) {
 			for (int i = 2; i <= (numInicial / 2 + 1); i++) { //Ya hemos comprobado si es primo. El mayor divisor posible es el numero / 2
 				while (numero % i == 0) {
-					if (divisores.containsKey(i)) {
-						divisores.replace(i, divisores.get(i)+1);
-						numero = numero / i;
-					} else {
-						divisores.put(i, 1);
-						numero = numero / i;
-					}
+					divisores.addLast(i);
+					numero = numero / i;
 				}
 			}
 		} else {
-			divisores.put(numero, 1);
+			divisores.addLast(numero);
 		}
 	}
 

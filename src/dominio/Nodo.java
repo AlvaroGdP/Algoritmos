@@ -7,13 +7,13 @@ import java.util.Set;
 
 public class Nodo {
 
-	private LinkedHashMap<Integer, Integer> divisoresRestantes;
+	private LinkedList<Integer> divisoresRestantes;
 	private LinkedList<Nodo> sucesores;
 	private Nodo sucesorElegido;
 	private int numero;
 	private boolean visitado;
 
-	public Nodo(LinkedHashMap<Integer, Integer> divisoresRestantes, int numero) {
+	public Nodo(LinkedList<Integer> divisoresRestantes, int numero) {
 		this.divisoresRestantes=divisoresRestantes;
 		this.sucesores = new LinkedList<Nodo>();
 		this.sucesorElegido=null;
@@ -49,11 +49,11 @@ public class Nodo {
 		this.sucesores = sucesores;
 	}
 
-	public LinkedHashMap<Integer, Integer> getDivisoresRestantes() {
+	public LinkedList<Integer> getDivisoresRestantes() {
 		return divisoresRestantes;
 	}
 
-	public void setDivisoresRestantes(LinkedHashMap<Integer, Integer> divisoresRestantes) {
+	public void setDivisoresRestantes(LinkedList<Integer> divisoresRestantes) {
 		this.divisoresRestantes = divisoresRestantes;
 	}
 
@@ -67,13 +67,17 @@ public class Nodo {
 	
 	public String divisoresToString() {
 		String auxDivisores = "Divisores restantes: ";
-		Set<Integer> keySet = this.getDivisoresRestantes().keySet();
-		Iterator<Integer> keys = keySet.iterator();
-		while (keys.hasNext()) {
-			int divisorActual = keys.next();
-			for (int i=1; i<=this.divisoresRestantes.get(divisorActual); i++) {
-				auxDivisores +=  (int) Math.pow(divisorActual, i)+" ";
-			}	
+		int divisorActual = 0;
+		int firstOccurence = -1;
+		int lastOccurence = -1;
+		for (int i=0; i < this.divisoresRestantes.size(); i++) {
+			divisorActual = this.divisoresRestantes.get(i);
+			firstOccurence = this.divisoresRestantes.indexOf(divisorActual);
+			lastOccurence = this.divisoresRestantes.lastIndexOf(divisorActual);
+			i = lastOccurence ; //Dado que están ordenados, podemos avanzar hasta la siguiente posicion
+			for (int j=1; j <= (lastOccurence - firstOccurence + 1); j++) {
+				auxDivisores += (int) Math.pow(divisorActual, j) + " ";
+			}
 		}
 		return auxDivisores;
 	}
