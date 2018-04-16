@@ -97,8 +97,7 @@ public class Divisores {
 	private static Nodo turnoJugador(Nodo actual) {
 		boolean correcto = false;
 		int divisor = -1;
-		int base = -1;
-		int exponente = -1;
+		Nodo sucesor = null;
 		System.out.println(estadoToString(actual));
 		String stringDivisores = actual.divisoresToString();
 		while (!correcto) {
@@ -112,15 +111,12 @@ public class Divisores {
 				System.exit(0);
 			}
 			if (stringDivisores.contains(" "+divisor+" ")) {
-				base = encontrarBase(divisor);
-				exponente = (int) (Math.log(divisor)/Math.log(base));
-				//Tras hallar divisor primo y número de veces, actualizamos los divisores restantes
-				actual.getDivisoresRestantes().put(base, actual.getDivisoresRestantes().get(base) - exponente);
+				sucesor = nodosVisitados.get(actual.getNumero() / divisor);
 				correcto = true;
 			}
 		}
-		System.out.println("[JUGADOR] Dividido por "+(int)Math.pow(base, exponente));
-		return nodosVisitados.get((int) actual.getNumero() / (int) Math.pow(base,  exponente));
+		System.out.println("[JUGADOR] Dividido por "+divisor);
+		return sucesor;
 	}
 	
 	/*************************************************************************************************
@@ -245,25 +241,6 @@ public class Divisores {
 					}
 				}
 			}
-	}
-	
-	
-	/**************************************************************************************
-	 * Método utilizado para hallar la base (prima y única) de un número dado 
-	 * @param numero
-	 * @return la base, si existe. -1 en caso de error
-	 ***************************************************************************************/
-	private static int encontrarBase(int numero) {
-		if (!esPrimo(numero)) {
-			for (int i = 2; i <= (numero / 2 + 2); i++) {
-				if (numero % i == 0) {
-					return i;
-				}
-			}
-		} else {
-			return numero;
-		}
-		return -1; //Error	
 	}
 	
 	
