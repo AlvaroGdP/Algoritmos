@@ -78,12 +78,8 @@ public class Nodo {
 		return auxDivisores;
 	}
 	
-	public String numeroActualToString(int numeroMax, String forwBack) {
-		if (forwBack.equals("Forward")) {
-			return "El número actual es: "+numeroMax/this.numero;
-		}else {
-			return "El número actual es: "+this.numero;
-		}
+	public String numeroActualToString() {
+		return "El número actual es: "+this.numero;
 	}
 	
 }
