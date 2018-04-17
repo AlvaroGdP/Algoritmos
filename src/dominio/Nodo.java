@@ -72,7 +72,7 @@ public class Nodo {
 		int lastOccurence = -1;
 		for (int i=0; i < this.divisoresRestantes.size(); i++) {
 			divisorActual = this.divisoresRestantes.get(i);
-			firstOccurence = this.divisoresRestantes.indexOf(divisorActual);
+			firstOccurence = i;
 			lastOccurence = this.divisoresRestantes.lastIndexOf(divisorActual);
 			i = lastOccurence ; //Dado que están ordenados, podemos avanzar hasta la siguiente posicion
 			for (int j=1; j <= (lastOccurence - firstOccurence + 1); j++) {

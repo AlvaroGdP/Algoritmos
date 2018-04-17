@@ -221,7 +221,7 @@ public class Divisores {
 		int lastOccurence = -1;
 		for (int i=0; i < predecesor.getDivisoresRestantes().size(); i++) {
 			divisorActual = predecesor.getDivisoresRestantes().get(i);
-			firstOccurence = predecesor.getDivisoresRestantes().indexOf(divisorActual);
+			firstOccurence = i;
 			lastOccurence = predecesor.getDivisoresRestantes().lastIndexOf(divisorActual);
 			i = lastOccurence; //Dado que están ordenados, podemos avanzar hasta la siguiente posicion
 			
