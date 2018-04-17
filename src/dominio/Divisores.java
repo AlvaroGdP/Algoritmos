@@ -13,9 +13,7 @@ public class Divisores {
 	private static LinkedList<Integer> divisores = null;
 	private static Hashtable<Integer, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;	
-	private static String forwBack = ""; //Controlar si usamos Forward o backward
-	private static LinkedList<Nodo> sucesoresEnCola = null; //Estructura auxiliar utilizada para implementar DFS
-	
+	private static String forwBack = ""; //Controlar si usamos Forward o backward	
 	
 	/*************************************************************************************************
 	 * Método encargado de guiar la ejecución principal del programa, invocando otros métodos necesarios
@@ -27,7 +25,6 @@ public class Divisores {
 		
 		divisores = new LinkedList<Integer>();
 		nodosVisitados = new Hashtable<Integer, Nodo>();
-		sucesoresEnCola = new LinkedList<Nodo>();
 		
 		numeroMax = numero;
 		forwBack = modo;
@@ -39,8 +36,7 @@ public class Divisores {
 		Nodo estadoActual = new Nodo(initialList, numeroMax);
 
 		if (forwBack.equals("Forward")) {
-			sucesoresEnCola.add(estadoActual);
-			sucesoresForw();
+			sucesoresForw(estadoActual);
 		}else {
 			sucesoresBack(estadoActual);
 		}
@@ -179,9 +175,11 @@ public class Divisores {
 	 * Método utilizado para generar los sucesores de un nodo dado, de forma recursiva. Versión Forward.
 	 * @param predecesor: nodo cuyos sucesores serán generados
 	 **************************************************************************************************/	
-	public static void sucesoresForw() {
+	public static void sucesoresForw(Nodo predecesor) {
+		LinkedList<Nodo> sucesoresEnCola = new LinkedList<Nodo>();
+		sucesoresEnCola.add(predecesor);
 		while (!sucesoresEnCola.isEmpty()) {
-			Nodo predecesor = sucesoresEnCola.remove();
+			predecesor = sucesoresEnCola.remove();
 			// Obtener todos los divisores
 			Set<Integer> keySet = predecesor.getDivisoresRestantes().keySet();
 			Iterator<Integer> keys = keySet.iterator();
