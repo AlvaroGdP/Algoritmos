@@ -9,14 +9,14 @@ public class Nodo {
 
 	private LinkedList<Integer> divisoresRestantes;
 	private LinkedList<Nodo> sucesores;
-	private Nodo sucesorElegido;
+	private Nodo sucesorGanador;
 	private int numero;
 	private boolean visitado;
 
 	public Nodo(LinkedList<Integer> divisoresRestantes, int numero) {
 		this.divisoresRestantes=divisoresRestantes;
 		this.sucesores = new LinkedList<Nodo>();
-		this.sucesorElegido=null;
+		this.sucesorGanador=null;
 		this.numero = numero;
 		this.visitado = false;
 	}
@@ -56,15 +56,15 @@ public class Nodo {
 	public void setDivisoresRestantes(LinkedList<Integer> divisoresRestantes) {
 		this.divisoresRestantes = divisoresRestantes;
 	}
+	
+	public Nodo getSucesorGanador() {
+		return sucesorGanador;
+	}
 
-	public Nodo getSucesorElegido() {
-		return sucesorElegido;
+	public void setSucesorGanador(Nodo sucesorGanador) {
+		this.sucesorGanador = sucesorGanador;
 	}
-	
-	public void setSucesorElegido(Nodo sucesor) {
-		this.sucesorElegido = sucesor;
-	}
-	
+
 	public String divisoresToString() {
 		String auxDivisores = "Divisores restantes: ";
 		int divisorActual = 0;
