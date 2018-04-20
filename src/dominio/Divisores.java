@@ -34,7 +34,7 @@ public class Divisores {
 		numeroMax = numero;
 		forwBack = modo;
 		boolean turno = turnoInicial;
-		boolean finPartida = true; // true para continuar jugando, false en caso contrario
+		boolean continuar = true; // true para continuar jugando, false en caso contrario
 		calcularDivisores(numeroMax);
 		LinkedList<Integer> initialList = new LinkedList<Integer>();
 		initialList = (LinkedList<Integer>) divisores.clone();
@@ -48,43 +48,27 @@ public class Divisores {
 			sucesoresBack(estadoActual);
 		}
 
-		visitar(estadoActual, forwBack);
+		visitar(estadoActual);
 
 		do {
 			if (turno) {
-				if (!fin(estadoActual)) {
+				if (estadoActual.getSucesores().size()!=0) {
 					estadoActual = turnoMaquina(estadoActual);
 					turno = false;
 				} else {
 					System.out.println("\n[MAQUINA] Tú ganas :(\n");
-					finPartida = false;
+					continuar = false;
 				}
 			} else {
-				if (!fin(estadoActual)) {
+				if (estadoActual.getSucesores().size()!=0) {
 					estadoActual = turnoJugador(estadoActual);
 					turno = true;
 				} else {
 					System.out.println("\n[MAQUINA] He ganado :)\n");
-					finPartida = false;
+					continuar = false;
 				}
 			}
-		} while (finPartida);
-	}
-
-	/**************************************************************************************************
-	 * Método utilizado para decidir si se ha alcanzado el último nodo, para ambas
-	 * versiones.
-	 * 
-	 * @param nodo:
-	 *            nodo a comprobar si es el final
-	 * @return true si se ha alcanzado el final, false en caso contrario
-	 *************************************************************************************************/
-	private static boolean fin(Nodo nodo) {
-		if (forwBack.equals("Forward")) {
-			return finForw(nodo);
-		} else {
-			return finBack(nodo);
-		}
+		} while (continuar);
 	}
 
 	/*************************************************************************************************
@@ -181,60 +165,21 @@ public class Divisores {
 	 * @param predecesor:
 	 *            nodo cuyos sucesores, y él mismo, serán visitados
 	 **************************************************************************************************/
-	private static void visitar(Nodo predecesor, String forwBack) {
+	private static void visitar(Nodo predecesor) {
 		for (int i = 0; i < predecesor.getSucesores().size(); i++) {
 			Nodo sucesorActual = predecesor.getSucesores().get(i);
-			if (!forwBack.equals("Forward")) {
-				if (finBack(sucesorActual)) {
-					predecesor.setSucesorGanador(sucesorActual);
-				} else {
-					if (!sucesorActual.getVisitado()) {
-						visitar(sucesorActual, forwBack);
-					}
-					if (sucesorActual.getSucesorGanador() == null) {
-						predecesor.setSucesorGanador(sucesorActual);
-						predecesor.setVisitado(true);
-						return;
-					}
-				}
-			} else {
-				if (finForw(sucesorActual)) {
-					predecesor.setSucesorGanador(sucesorActual);
-				} else {
-					if (!sucesorActual.getVisitado()) {
-						visitar(sucesorActual, forwBack);
-					}
-					if (sucesorActual.getSucesorGanador() == null) {
-						predecesor.setSucesorGanador(sucesorActual);
-						predecesor.setVisitado(true);
-						return;
-					}
+			//Si el sucesor no ha sido visitado, invocar recursivamente
+			if (!sucesorActual.getVisitado()) { 
+				visitar(sucesorActual);
+			}else {	
+				if (sucesorActual.getSucesorGanador() == null) { 
+					predecesor.setSucesorGanador(sucesorActual); 
+					predecesor.setVisitado(true);
+					return;
 				}
 			}
 		}
 		predecesor.setVisitado(true);
-	}
-
-	private static boolean finForw(Nodo sucesorActual) {
-		if (sucesorActual.getNumero() == numeroMax) {
-			return true;
-		}
-		return false;
-	}
-
-	/**************************************************************************************************
-	 * Método utilizado para decidir si se ha alcanzado el final. Versión Backward.
-	 * 
-	 * @param nodo:
-	 *            nodo a comprobar si es el final
-	 * @return true si se ha alcanzado el final, false en caso contrario
-	 *************************************************************************************************/
-	private static boolean finBack(Nodo nodo) {
-		if (nodo.getNumero() == 1) {
-			return true;
-		}
-		return false;
-
 	}
 
 	/**************************************************************************************************
@@ -332,7 +277,7 @@ public class Divisores {
 	 ************************************************************************************************/
 	public static void calcularDivisores(int numero) {
 		int numInicial = numero;
-		while (numero % 2 == 0) {
+		while (numero % 2 == 0) { //Dividir por 2 hasta que el número sea impar
 			divisores.addLast(2);
 			numero = numero / 2;
 		}
