@@ -10,7 +10,6 @@ import java.util.Set;
 public class Divisores {
 
 	private static Scanner read = new Scanner(System.in);
-	private static LinkedList<Integer> divisores = null;
 	private static Hashtable<Integer, Nodo> nodosVisitados = null;
 	private static int numeroMax = -1;
 	private static String forwBack = ""; // Controlar si usamos Forward o backward
@@ -28,31 +27,29 @@ public class Divisores {
 	 **********************************************************************************************/
 	public static void ejecucionPrincipal(int numero, String modo, boolean turnoInicial) {
 
-		divisores = new LinkedList<Integer>();
+
 		nodosVisitados = new Hashtable<Integer, Nodo>();
 
 		numeroMax = numero;
 		forwBack = modo;
 		boolean turno = turnoInicial;
 		boolean continuar = true; // true para continuar jugando, false en caso contrario
-		calcularDivisores(numeroMax);
+		LinkedList<Integer> divisores = calcularDivisores(numeroMax);
 		LinkedList<Integer> initialList = new LinkedList<Integer>();
 		initialList = (LinkedList<Integer>) divisores.clone();
 		Nodo estadoActual = new Nodo(initialList, numeroMax);
-
+		
 		if (forwBack.equals("Forward")) {
 			estadoActual = new Nodo(initialList, 1);
-			sucesoresForw(estadoActual);
+			estadoActual = sucesoresForw(estadoActual);
 		} else {
 			estadoActual = new Nodo(initialList, numeroMax);
 			sucesoresBack(estadoActual);
 		}
 
-		visitar(estadoActual);
-
 		do {
 			if (turno) {
-				if (estadoActual.getSucesores().size()!=0) {
+				if (estadoActual.getSucesores().size() != 0) {
 					estadoActual = turnoMaquina(estadoActual);
 					turno = false;
 				} else {
@@ -60,7 +57,7 @@ public class Divisores {
 					continuar = false;
 				}
 			} else {
-				if (estadoActual.getSucesores().size()!=0) {
+				if (estadoActual.getSucesores().size() != 0) {
 					estadoActual = turnoJugador(estadoActual);
 					turno = true;
 				} else {
@@ -115,13 +112,8 @@ public class Divisores {
 				System.exit(0);
 			}
 			if (stringDivisores.contains(" " + divisor + " ")) {
-				if (forwBack.equals("Forward")) {
-					sucesor = nodosVisitados.get(actual.getNumero() * divisor);
-					correcto = true;
-				} else {
-					sucesor = nodosVisitados.get(actual.getNumero() / divisor);
-					correcto = true;
-				}
+				sucesor = nodosVisitados.get(actual.getNumero() / divisor);
+				correcto = true;
 			}
 		}
 		System.out.println("[JUGADOR] Dividido por " + divisor);
@@ -150,52 +142,27 @@ public class Divisores {
 	 * @return String generada
 	 *************************************************************************************************/
 	private static String jugadaRealizadaToString(Nodo predecesor, Nodo sucesor) {
-		if (forwBack.equals("Forward")) {
+		/*if (forwBack.equals("Forward")) {
 			return "Dividido por " + sucesor.getNumero() / predecesor.getNumero() + ".";
-		} else {
+		} else {*/
 			return "Dividido por " + predecesor.getNumero() / sucesor.getNumero() + ".";
-		}
-	}
-
-	/***************************************************************************************************
-	 * Método utilizado para asignar los sucesores correctos a cada nodo. Versión
-	 * Forward.
-	 * 
-	 * @param forwBack
-	 * @param predecesor:
-	 *            nodo cuyos sucesores, y él mismo, serán visitados
-	 **************************************************************************************************/
-	private static void visitar(Nodo predecesor) {
-		for (int i = 0; i < predecesor.getSucesores().size(); i++) {
-			Nodo sucesorActual = predecesor.getSucesores().get(i);
-			//Si el sucesor no ha sido visitado, invocar recursivamente
-			if (!sucesorActual.getVisitado()) { 
-				visitar(sucesorActual);
-			}else {	
-				if (sucesorActual.getSucesorGanador() == null) { 
-					predecesor.setSucesorGanador(sucesorActual); 
-					predecesor.setVisitado(true);
-					return;
-				}
-			}
-		}
-		predecesor.setVisitado(true);
+		//}
 	}
 
 	/**************************************************************************************************
 	 * Método utilizado para generar los sucesores de un nodo dado, de forma
-	 * recursiva. Versión Forward.
+	 * iterativa (BFS). Versión Forward.
 	 * 
 	 * @param predecesor:
 	 *            nodo cuyos sucesores serán generados
 	 **************************************************************************************************/
-	public static void sucesoresForw(Nodo predecesor) {
+	public static Nodo sucesoresForw(Nodo predecesor) {
 		int divisorActual = -1;
 		int firstOccurence = -1;
 		int lastOccurence = -1;
 		LinkedList<Nodo> sucesoresEnCola = new LinkedList<Nodo>();
 		sucesoresEnCola.add(predecesor);
-		
+		nodosVisitados.put(1, predecesor);
 		while (!sucesoresEnCola.isEmpty()) {
 			predecesor = sucesoresEnCola.remove();
 			// Obtener todos los divisores
@@ -203,35 +170,47 @@ public class Divisores {
 				divisorActual = predecesor.getDivisoresRestantes().get(i);
 				firstOccurence = i;
 				lastOccurence = predecesor.getDivisoresRestantes().lastIndexOf(divisorActual);
-				i = lastOccurence; // Dado que están ordenados, podemos avanzar hasta la ultima posicion para la siguiente iteracion
+				i = lastOccurence; // Dado que están ordenados, podemos avanzar hasta la ultima posicion para la
+									// siguiente iteracion
 
-				//Generamos tantos sucesores como exponente del divisor actual
+				// Generamos tantos sucesores como exponente del divisor actual
 				for (int j = 1; j <= (lastOccurence - firstOccurence + 1); j++) {
-					LinkedList<Integer> copiaDivisoresRestantes = (LinkedList<Integer>) predecesor.getDivisoresRestantes().clone();
+					LinkedList<Integer> copiaDivisoresRestantes = (LinkedList<Integer>) predecesor
+							.getDivisoresRestantes().clone();
 					// Eliminamos tantos divisores como exponente
 					for (int k = 0; k < j; k++) {
 						copiaDivisoresRestantes.remove(firstOccurence);
 					}
 					int numeroActual = (int) (predecesor.getNumero() * (Math.pow(divisorActual, j)));
 
-					// Si aun no ha sido creado 
+					// Si aun no ha sido creado
 					if ((!nodosVisitados.containsKey(numeroActual))) {
 						Nodo sucesor = new Nodo(copiaDivisoresRestantes, numeroActual);
-						predecesor.addSucesor(sucesor);
+						sucesor.addSucesor(predecesor);
+						esGanador(predecesor, sucesor);
 						nodosVisitados.put(numeroActual, sucesor);
 						sucesoresEnCola.add(sucesor);
-					// Si ha sido creado solo se añade como sucesor
+						// Si ha sido creado solo se añade como sucesor
 					} else {
-						predecesor.addSucesor(nodosVisitados.get(numeroActual));
+						esGanador(predecesor, nodosVisitados.get(numeroActual));
+						nodosVisitados.get(numeroActual).addSucesor(predecesor);
 					}
 				}
 			}
+			predecesor.setDivisoresRestantes(calcularDivisores(predecesor.getNumero()));
+		}
+		return predecesor;
+	}
+
+	public static void esGanador(Nodo padre, Nodo hijo) {
+		if (padre.getSucesorGanador() == null) {
+			hijo.setSucesorGanador(padre);
 		}
 	}
 
 	/**************************************************************************************************
 	 * Método utilizado para generar los sucesores de un nodo dado, de forma
-	 * recursiva. Versión Backward.
+	 * recursiva (DFS). Versión Backward.
 	 * 
 	 * @param predecesor:
 	 *            nodo cuyos sucesores serán generados
@@ -240,16 +219,18 @@ public class Divisores {
 		int divisorActual = -1;
 		int firstOccurence = -1;
 		int lastOccurence = -1;
-		
+
 		for (int i = 0; i < predecesor.getDivisoresRestantes().size(); i++) {
 			divisorActual = predecesor.getDivisoresRestantes().get(i);
 			firstOccurence = i;
 			lastOccurence = predecesor.getDivisoresRestantes().lastIndexOf(divisorActual);
-			i = lastOccurence; // Dado que están ordenados, podemos avanzar hasta la ultima posicion para la siguiente iteracion
+			i = lastOccurence; // Dado que están ordenados, podemos avanzar hasta la ultima posicion para la
+								// siguiente iteracion
 
 			// Generaremos tantos sucesores como exponente del divisor Actual
 			for (int j = 1; j <= (lastOccurence - firstOccurence + 1); j++) {
-				LinkedList<Integer> copiaDivisoresRestantes = (LinkedList<Integer>) predecesor.getDivisoresRestantes().clone();
+				LinkedList<Integer> copiaDivisoresRestantes = (LinkedList<Integer>) predecesor.getDivisoresRestantes()
+						.clone();
 				// Eliminamos tantos divisores como exponente
 				for (int k = 0; k < j; k++) {
 					copiaDivisoresRestantes.remove(firstOccurence);
@@ -262,9 +243,13 @@ public class Divisores {
 					predecesor.addSucesor(sucesor);
 					nodosVisitados.put(sucesor.getNumero(), sucesor);
 					sucesoresBack(sucesor);
-				// Si ha sido creado solo se añade como sucesor
+					// Si ha sido creado solo se añade como sucesor
 				} else {
 					predecesor.addSucesor(nodosVisitados.get(numeroActual));
+				}
+				// En cualquier caso, comprobar si es ganador o perdedor
+				if (nodosVisitados.get(numeroActual).getSucesorGanador() == null) {
+					predecesor.setSucesorGanador(nodosVisitados.get(numeroActual));
 				}
 			}
 		}
@@ -274,22 +259,25 @@ public class Divisores {
 	 * Método utilizado para calcular los divisores de un número
 	 * 
 	 * @param numero
+	 * @return 
 	 ************************************************************************************************/
-	public static void calcularDivisores(int numero) {
+	public static LinkedList<Integer> calcularDivisores(int numero) {
 		int numInicial = numero;
-		while (numero % 2 == 0) { //Dividir por 2 hasta que el número sea impar
+		LinkedList<Integer> divisores = new LinkedList<Integer>();
+		while (numero % 2 == 0) { // Dividir por 2 hasta que el número sea impar
 			divisores.addLast(2);
 			numero = numero / 2;
 		}
-		for (int i = 3; i <= numInicial / 3; i+=2) { // El numero restante no es par
-			while (numero % i == 0) {               // 	Solo comprobamos divisores impares
+		for (int i = 3; i <= numInicial / 3; i += 2) { // Solo comprobamos divisores impares
+			while (numero % i == 0) {
 				divisores.addLast(i);
 				numero = numero / i;
 			}
 		}
 		if (numero != 1) {
-			divisores.addLast(numero); //Solo ocurrirá si el numero es primo
+			divisores.addLast(numero); // Solo ocurrirá si el numero es primo
 		}
+		return divisores;
 	}
 
 }
