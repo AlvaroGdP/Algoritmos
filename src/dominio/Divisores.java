@@ -248,9 +248,7 @@ public class Divisores {
 					predecesor.addSucesor(nodosVisitados.get(numeroActual));
 				}
 				// En cualquier caso, comprobar si es ganador o perdedor
-				if (nodosVisitados.get(numeroActual).getSucesorGanador() == null) {
-					predecesor.setSucesorGanador(nodosVisitados.get(numeroActual));
-				}
+				esGanador(nodosVisitados.get(numeroActual),predecesor);
 			}
 		}
 	}
