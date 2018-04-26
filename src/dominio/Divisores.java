@@ -196,14 +196,14 @@ public class Divisores {
 	}
 
 	/*************************************************************************************************************
-	 * Metodo utilizado para comprobar si un nodo es ganador o no, y actualizar el atributo esGanador del nodo padre
+	 * Metodo utilizado para comprobar si un nodo es perdedor o no, y actualizar el atributo esGanador del otro nodo
 	 * 	en consecuencia
-	 * @param padre
-	 * @param hijo
+	 * @param nodo1 nodo que se comprueba si es perdedor
+	 * @param nodo2 nodo que se actualiza si lo es
 	 *************************************************************************************************************/
-	public static void esGanador(Nodo padre, Nodo hijo) {
-		if (padre.getSucesorGanador() == null) {
-			hijo.setSucesorGanador(padre);
+	public static void esGanador(Nodo nodo1, Nodo nodo2) {
+		if (nodo1.getSucesorGanador() == null) {
+			nodo2.setSucesorGanador(nodo1);
 		}
 	}
 
