@@ -48,6 +48,7 @@ public class Busqueda {
 		reader.close();
 		System.out.println("Archivo recorrido correctamente.");
 		System.out.println("\n***** Mostrando resultados *****\n");
+		System.out.println("Patrón encontrado en: ");
 		numeroOcurrencias = mostrarResultados(ocurrenciasEncontradas);
 		System.out.println("Ocurrencias estimadas: "+leerCada * numeroOcurrencias);
 	}
