@@ -1,37 +1,40 @@
 package dominio;
 	
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Busqueda {
 
-	public static void main(String[] args) {
-		Scanner reader = null;
+	public static void ejecucionPrincipal(String patron, String metodo, int leerCada) throws IOException {
+		BufferedReader reader = null;
 		String linea;
 		int numeroLinea = 0;
 		int numeroOcurrencias = 0;
 		ArrayList<LineaOcurrencia> ocurrenciasEncontradas = new ArrayList<LineaOcurrencia>();
 
 		//Hardcode
-		int leerCada = 2; //Leer 1 de cada 2 lineas
-		String patron = "hidalgo";
-		patron = patron.toLowerCase();
 		String path = "quijote1.txt";
-		String metodo = "Knuth-Morris-Prat";
 		
+		patron = patron.toLowerCase();
 		File texto = new File(path);
 		System.out.println("Abriendo archivo "+path);
 		try {
-			reader=new Scanner(new FileReader(texto));
+			// Necesario para poder abrir el archivo con formato correcto
+			// Evitar problemas por caracteres especiales
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(texto), "Cp1252"));
 		} catch (FileNotFoundException e) {
 			System.err.println("Error al intentar leer el archivo "+path);
+			System.exit(0);
 		}
 		System.out.println("Recorriendo archivo...");
-		while (reader.hasNext()) {
-			linea = reader.nextLine();
+		while ((linea = reader.readLine())!=null) {
 			if (numeroLinea%leerCada == 0) {
 				//Convertir todo a minusculas
 				linea = linea.toLowerCase();
