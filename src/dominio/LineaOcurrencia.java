@@ -31,8 +31,9 @@ public class LineaOcurrencia {
 	public String toString() {
 		String cadenaPosicion = "; Posición: ";
 		for (int pos: this.ocurrencias) {
-			cadenaPosicion += pos+" ";
+			cadenaPosicion += pos+", ";
 		}
+		cadenaPosicion = cadenaPosicion.substring(0, cadenaPosicion.length()-2);
 		return "Línea "+this.linea+cadenaPosicion;
 	}
 }

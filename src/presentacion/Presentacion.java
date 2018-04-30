@@ -66,7 +66,7 @@ public class Presentacion {
 	private static int introducirCadaXLineas() {
 		int leerCada = 0;
 		while (leerCada <= 0) {
-			System.out.print("[SISTEMA] ¿Cada cuántas lineas deseas realizar la busqueda? (1 para todo el texto).");
+			System.out.println("[SISTEMA] ¿Cada cuántas lineas deseas realizar la busqueda? (1 para todo el texto).");
 			try {
 				leerCada = Integer.parseInt(read.next());
 			}catch (NumberFormatException nfe) {
