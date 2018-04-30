@@ -15,7 +15,8 @@ public class Presentacion {
 			System.out.println("\n***************** Iniciando Ejecución *****************\n");
 			String patron = introducirPatron();
 			String metodo = introducirMetodo();
-			int leerCada = introducirCadaXLineas();
+			// Buscar el patron solo cada X lineas
+			int leerCada = (int) (100 / introducirPorcentaje());
 			Busqueda.ejecucionPrincipal(patron, metodo, leerCada);
 		}
 	}
@@ -63,17 +64,17 @@ public class Presentacion {
 		return metodo;
 	}
 
-	private static int introducirCadaXLineas() {
-		int leerCada = 0;
-		while (leerCada <= 0) {
-			System.out.println("[SISTEMA] ¿Cada cuántas lineas deseas realizar la busqueda? (1 para todo el texto).");
+	private static double introducirPorcentaje() {
+		double procentaje = 0;
+		while (procentaje <= 0 || procentaje>100) {
+			System.out.println("[SISTEMA] Introduce un porcentaje a analizar (100 para todo el texto).");
 			try {
-				leerCada = Integer.parseInt(read.next());
+				procentaje = Integer.parseInt(read.next());
 			}catch (NumberFormatException nfe) {
 				System.err.println("[SISTEMA] Por favor, introduce un número natural.");
 			}
 		}
-		return leerCada;
+		return procentaje;
 	}
 
 	
