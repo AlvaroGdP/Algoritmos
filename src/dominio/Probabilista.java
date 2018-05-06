@@ -1,38 +1,24 @@
 package dominio;
 
 public class Probabilista {
-
-	private static double[] intervaloP = new double[2];
 	
 	public static void main(String[] args) {
-		int n = 100000000, counter = 0;
-		for (int i = 0; i < n; i++) {
-			double x = randomWithRange(0, 1);
-			double y = randomWithRange(0, 1);
-			double z = randomWithRange(0, 2);
-			if (z >= f(x, y)) {
-				counter++;
-			}
-		}
-		double volumen = 2.0*((double)counter/n);
-		IntervaloConfProporciones(2.0*((double)counter/n),n);
-		System.out.println("Volumen Numerico P ="+volumen+" Intervalo de confianza ["+intervaloP[0]+" , "+intervaloP[1]+"]");
-	}
-
-	public static double f(double x, double y) {
-		double z = 0;
-		z = Math.pow(x, 2) + Math.pow(y, 2);
-		return z;
-	}
-
-	public static int randomWithRange(int min, int max) {
-		int range = (max - min) + 1;
-		return (int) (Math.random() * range) + min;
-	}
-
-	public static void IntervaloConfProporciones(double p, int n) {
-		intervaloP[0] = p - 1.96 * Math.sqrt(Math.abs(p * (1 - p) / n));
-		intervaloP[1] = p + 1.96 * Math.sqrt(Math.abs(p * (1 - p) / n));
+		int n = 100000000;
+		Parabola p = new Parabola(0,1,0,2);
+		long startTime = System.nanoTime();
+		double volumen = p.volumenNumericoP(n);
+		long executionTime = System.nanoTime() - startTime;
+		System.out.println("Volumen Numerico P ="+volumen+" Intervalo de confianza ["+p.intervaloInfP()+" , "+p.intervaloSupP()+"]");
+		System.out.println("El tiempo de ejecución con "+n+" puntos es: "+executionTime+" ns\n");
+		
+		//Esfera de radio 1
+		Esfera f = new Esfera(0,1,1);
+		startTime = System.nanoTime();
+		volumen = f.volumenNumericoP(n);
+		executionTime = System.nanoTime() - startTime;
+		System.out.println("Volumen Numerico P ="+volumen+" Intervalo de confianza ["+f.intervaloInfP()+" , "+f.intervaloSupP()+"]");
+		System.out.println("El volumen real de la esfera es: "+f.volumen());
+		System.out.println("El tiempo de ejecución con "+n+" puntos es: "+executionTime+" ns");
 	}
 
 }
